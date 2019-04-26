@@ -1,0 +1,16 @@
+{
+	"DEFAULT": {
+		"ROOT_PATH": "D:\\workspace\\sodeeps_project2",
+		"RESOURCE_PATH": "D:\\workspace\\sodeeps_project2\\resources"
+	},
+	"MODEL": {
+		"features": 784,
+		"labels": 	10,
+		"hidden_layers": [],
+		"activation_functions": []
+	},
+	"TRAIN": {
+		"epoch": 1000,
+		"batch_size": 10
+	}
+}
