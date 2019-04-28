@@ -33,10 +33,13 @@ class Neural_Network():
         n_x = config['MODEL']['features']
         n_h = config['MODEL']['hidden_layers']
         n_y = config['MODEL']['labels']
+        self.activation = config['MODEL']['activation_functions']
+
         layers_dims = [n_x]
         layers_dims.extend(n_h)
         layers_dims.append(n_y)
 
+        print (layers_dims)
         self.initialize_parameter(layers_dims)
         logging.info('Completing initialize parameter')
 
@@ -48,6 +51,7 @@ class Neural_Network():
         for l in range(num_layer-1):
             parameters['W'+str(l+1)] = np.random.randn(layers_dims[l+1], layers_dims[l]) * 0.01
             parameters['b'+str(l+1)] = np.zeros((layers_dims[l+1], 1))
+            print (parameters['W'+str(l+1)].shape)
 
         self.parameters = parameters
 
@@ -56,25 +60,69 @@ class Neural_Network():
         
         epoch = config['TRAIN']['epoch']
         batch_size = config['TRAIN']['batch_size']
+        train_data_ratio = config['TRAIN']['train_data_ratio']
+        validation_data_ratio = config['TRAIN']['validation_data_ratio']
+        learning_rate = config['TRAIN']['learning_rate']
 
+        numTrain = int(self.trainX.shape[1]*train_data_ratio)
+        numVal = int(self.trainX.shape[1] - numTrain)
 
-        batch_X = self.trainX[:, 0:3]
-        batch_Y = self.trainY[:, 0:3]
+        print (numTrain)
+        print (numVal)
+        trainX = self.trainX[:, 0:numTrain]
+        trainY = self.trainY[:, 0:numTrain]
+        val_X = self.trainX[:, numTrain: ]
+        val_Y = self.trainY[:, numTrain: ]
+
+        numBatch = numTrain // batch_size
+
+        #print (trainX.shape)
+        #print (val_X.shape)
+        #print (numTrain)
+        #print ('batch_size: ' + str(batch_size))
+        #print (numBatch)
         for i in range(epoch):
-            # TODO Mini-batch
-            # ------
+            for j in range(numBatch):
+                batch_X = trainX[:, j*batch_size:(j+1)*batch_size]
+                batch_Y = trainY[:, j*batch_size:(j+1)*batch_size]
 
-            AL, caches = self.forward_propagation(batch_X)
-            cost = self.compute_cost(AL, batch_Y, 'cross_entropy')
-            print ('Epoch ' + str(i) + ' - ' + 'cost ' + str(cost))
+                AL, caches = self.forward_propagation(batch_X)
+                cost = self.compute_cost(AL, batch_Y, 'cross_entropy')
+                print ('Epoch ' + str(i) + ' - ' + 'cost ' + str(cost))
 
-            grads = self.backward_propagation(AL, batch_Y, caches)
-        
-            self.parameters = self.update_parameters(self.parameters, grads, 0.0001)
+                grads = self.backward_propagation(AL, batch_Y, caches)
+                self.parameters = self.update_parameters(self.parameters, grads, learning_rate)
+                train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
+                print ('train_accuracy: ' + str(train_acc))
+                if val_acc is not None:
+                    print ('val_accuracy: ' + str(val_acc))
 
-            W1 = self.parameters["W1"]
-            #print (W1.shape)
-            #print (W1[0].shape)
+            # Last batch
+            if numTrain % batch_size != 0:
+                batch_X = trainX[:, numBatch*batch_size:]
+                batch_Y = trainY[:, numBatch*batch_size:]
+                print (batch_X.shape)
+                AL, caches = self.forward_propagation(batch_X)
+                cost = self.compute_cost(AL, batch_Y, 'cross_entropy')
+                print ('Epoch ' + str(i) + ' - ' + 'cost ' + str(cost))
+
+                grads = self.backward_propagation(AL, batch_Y, caches)
+                self.parameters = self.update_parameters(self.parameters, grads, learning_rate)
+                train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
+                print ('train_accuracy: ' + str(train_acc))
+                if val_acc is not None:
+                    print ('val_accuracy: ' + str(val_acc))
+
+
+            # train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
+            #print ('train_accuracy: ' + str(train_acc))
+            #if val_acc is not None:
+            #    print ('val_accuracy: ' + str(val_acc))
+
+            # break
+            # W1 = self.parameters["W1"]
+            # print (W1.shape)
+            # print (W1[0].shape)
 
 
     def forward_propagation(self, batch_X):
@@ -85,15 +133,15 @@ class Neural_Network():
         caches = []
         for i in range(1, num_layers):
             # linear forward
-            W = parameters['W'+str(l)]
-            b = parameters['b'+str(l)]
-            A, cache = self.activation_forward(A, W, b, 'relu')
+            W = parameters['W'+str(i)]
+            b = parameters['b'+str(i)]
+            A, cache = self.activation_forward(A, W, b, self.activation[i-1])
             caches.append(cache)
 
         # Output Layer
         W = parameters['W'+str(num_layers)]
         b = parameters['b'+str(num_layers)]
-        AL, cache = self.activation_forward(A, W, b, 'softmax')
+        AL, cache = self.activation_forward(A, W, b, self.activation[-1])
         caches.append(cache)
 
 
@@ -121,15 +169,15 @@ class Neural_Network():
             Z, linear_cache = self.linear_forward(A_prev, W, b)
             A, activation_cache = sigmoid(Z)
 
-        elif activation_relu == "tanh":
+        elif activation == "tanh":
             Z, linear_cache = self.linear_forward(A_prev, W, b)
             A, activation_cache = tanh(Z)
 
-        elif activation_relu == "relu":
+        elif activation == "relu":
             Z, linear_cache = self.linear_forward(A_prev, W, b)
             A, activation_cache = relu(Z)
 
-        elif activation_relu == "leaky_relu":
+        elif activation == "leaky_relu":
             Z, linear_cache = self.linear_forward(A_prev, W, b)
             A, activation_cache = leaky_relu(Z)
 
@@ -162,8 +210,8 @@ class Neural_Network():
             cache = caches[l]
             dA_prev, dW, db = self.linear_activation_backward(grads["dA"+str(l+1)], cache, "relu")
             grads["dA" + str(l)] = dA_prev
-            grads["dW" + str(l)] = dW
-            grads["db" + str(l)] = db
+            grads["dW" + str(l+1)] = dW
+            grads["db" + str(l+1)] = db
 
         return grads
 
@@ -209,6 +257,7 @@ class Neural_Network():
 
         return dA_prev, dW, db
 
+
     def update_parameters(self, parameters, grads, learning_rate):
 
         L = len(parameters) // 2
@@ -218,6 +267,36 @@ class Neural_Network():
             parameters["b" + str(l+1)] = parameters["b" + str(l+1)] - learning_rate*grads["db" + str(l+1)]
 
         return parameters
+
+
+    def prediction(self ):
+        pass
+
+
+    def estimate(self, AL, Y, val, val_Y):
+
+        numData = Y.shape[1]
+        prediction = np.argmax(AL, axis=0)
+        solution = np.argmax(Y, axis=0)
+
+        right = np.sum(prediction == solution)
+        train_accuracy = right / numData
+
+        val_accuracy = None
+        if val is not None and val_Y is not None:
+            val_AL, _ = self.forward_propagation(val)
+            # cost = self.compute_cost(val_AL, val_Y, 'cross_entropy')
+
+            val_pred = np.argmax(val_AL, axis=0)
+            val_sol = np.argmax(val_Y, axis=0)
+
+            val_right = np.sum(val_pred == val_sol)
+            val_accuracy = val_right / val_Y.shape[1]
+
+
+        return train_accuracy, val_accuracy
+
+
 
 if __name__ == '__main__':
 
