@@ -64,7 +64,7 @@ class Neural_Network():
             self.parameters = initialize_parameter(layers_dims)
             self.s, self.v = initialize_adam(self.parameters)
 
-        print (self.parameters["W2"][:, 0])
+        # print (self.parameters["W2"][:, 0])
         """
         parameters = {}
         num_layer = len(layers_dims)
@@ -144,7 +144,7 @@ class Neural_Network():
                 print (SAL[:, 0])
                 print (batch_Y[:, 0])
                 """
-                print (self.parameters["W2"])
+                # print (self.parameters["W2"])
                 train_acc, val_acc, cost = self.estimate_total(trainX, trainY, val_X, val_Y)
                 print ('Epoch: ' + str(i) + '-' + 'cost ' + str(cost))
                 print ('train_accuracy: ' + str(train_acc))
@@ -391,6 +391,7 @@ if __name__ == '__main__':
         config = json.load(f)
 
     if config is not None:
+        random.seed(1)
         nn = Neural_Network(config)
         nn.read_mnist()
 
