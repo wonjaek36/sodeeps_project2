@@ -6,17 +6,19 @@ train_acc = f.readline()
 train_acc = train_acc[1:-2]
 print (train_acc)
 train_acc = list(map(float, train_acc.split(',')))
-train_acc = train_acc[:-1]
 
 val_acc = f.readline()
 val_acc = val_acc[1:-2]
 val_acc = list(map(float, val_acc.split(',')))
-val_acc = val_acc[:-1]
 
 cost = f.readline()
 cost = cost[1:-2]
 cost = list(map(float, cost.split(',')))
-cost = cost[:-1]
+
+val_cost = f.readline()
+val_cost = f.readline()
+val_cost = val_cost[1:-2]
+val_cost = list(map(float, cost.split(',')))
 
 pyplot.plot(train_acc)
 pyplot.plot(val_acc)
@@ -26,5 +28,6 @@ pyplot.show()
 pyplot.clf()
 
 pyplot.plot(cost)
+pyplot.plot(val_cost)
 pyplot.ylabel('cost')
 pyplot.show()
