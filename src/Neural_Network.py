@@ -350,7 +350,7 @@ class Neural_Network():
             beta2 = config['TRAIN']['beta2']
             epsillon = 1e-8 #config['TRAIN']['epsillon']
             t = 2 #config['TRAIN']['t']
-            self.parameters, self.v, self.s = update_parameters_with_adam(parameters, grads, self.v, self.s, t, learning_rate, bet1, beta2, epsillon)
+            self.parameters, self.v, self.s = update_parameters_with_adam(parameters, grads, self.v, self.s, t, learning_rate, beta1, beta2, epsillon)
 
 
     """

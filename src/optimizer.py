@@ -62,7 +62,7 @@ def initialize_adam(parameters):
 
     L = len(parameters) // 2
     s = {}
-
+    v = {}
     for l in range(L):
         (dW_row, dW_column) = parameters["W" + str(l+1)].shape
         (db_row, db_column) = parameters["b" + str(l+1)].shape
@@ -74,10 +74,11 @@ def initialize_adam(parameters):
     return v, s
 
 
-def update_parameters_with_adam(parameters, grads, v, s, t, learning_rate, bet1=0.9, beta2=0.999, epsillon = 1e-8):
+def update_parameters_with_adam(parameters, grads, v, s, t, learning_rate, beta1=0.9, beta2=0.999, epsillon = 1e-8):
 
     L = len(parameters) // 2
-
+    v_corrected = {}
+    s_corrected = {}
     for l in range(L):
         v["dW" + str(l+1)] = beta1*v["dW"+str(l+1)] + (1-beta1)*grads["dW"+str(l+1)]
         v["db" + str(l+1)] = beta1*v["db"+str(l+1)] + (1-beta1)*grads["db"+str(l+1)]
@@ -91,8 +92,8 @@ def update_parameters_with_adam(parameters, grads, v, s, t, learning_rate, bet1=
         s_corrected["dW" + str(l+1)] = s["dW" + str(l+1)] / (1-np.power(beta2, t))
         s_corrected["db" + str(l+1)] = s["db" + str(l+1)] / (1-np.power(beta2, t))
 
-        parameters["W" + str(l+1)] = parameters["W" + str(l+1)] - (learning_rate * v_corrected["dW"+str(l+1)]) / (np.sqrt(s_corrected["dW"+str(l+1)]) + epsilon)
-        parameters["b" + str(l+1)] = parameters["b" + str(l+1)] - (learning_rate * v_corrected["db"+str(l+1)]) / (np.sqrt(s_corrected["db"+str(l+1)]) + epsilon)
+        parameters["W" + str(l+1)] = parameters["W" + str(l+1)] - (learning_rate * v_corrected["dW"+str(l+1)]) / (np.sqrt(s_corrected["dW"+str(l+1)]) + epsillon)
+        parameters["b" + str(l+1)] = parameters["b" + str(l+1)] - (learning_rate * v_corrected["db"+str(l+1)]) / (np.sqrt(s_corrected["db"+str(l+1)]) + epsillon)
 
     return parameters, v, s
 
