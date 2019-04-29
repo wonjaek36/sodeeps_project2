@@ -117,17 +117,20 @@ class Neural_Network():
                 # For softmax
                 SAL = softmax(AL)
 
-                # cost = self.compute_cost(AL, batch_Y, 'cross_entropy')
-                # print ('Epoch ' + str(i) + ' - ' + 'cost ' + str(cost))
+                cost = self.compute_cost(AL, batch_Y, 'cross_entropy', l2, lambd)
+                print ('Epoch - ' + str(i) + ' Mini-batch - ' + str(j) + ' cost ' + str(cost))
 
                 grads = self.backward_propagation(SAL, batch_Y, caches, l2, lambd)
                 self.update_parameters(self.parameters, grads, learning_rate, optimizer)
-                """
+                
                 train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
+                train_acc_list.append(train_acc)
+                val_acc_list.append(val_acc)
+                cost_list.append(cost)
                 print ('train_accuracy: ' + str(train_acc))
                 if val_acc is not None:
                     print ('val_accuracy: ' + str(val_acc))
-                """
+                
 
             # Last batch
             if numTrain % batch_size != 0:
@@ -138,16 +141,19 @@ class Neural_Network():
                 # For softmax
                 SAL = softmax(AL)
 
-                # cost = self.compute_cost(AL, batch_Y, 'cross_entropy')
-                # print ('Epoch ' + str(i) + ' - ' + 'cost ' + str(cost))
+                cost = self.compute_cost(AL, batch_Y, 'cross_entropy', l2, lambd)
+                print ('Epoch - ' + str(i) + ' Mini-batch - ' + str(j) + ' cost ' + str(cost))
 
                 grads = self.backward_propagation(SAL, batch_Y, caches, l2, lambd)
                 self.update_parameters(self.parameters, grads, learning_rate, optimizer)
-                """train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
+                train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
+                train_acc_list.append(train_acc)
+                val_acc_list.append(val_acc)
+                cost_list.append(cost)
                 print ('train_accuracy: ' + str(train_acc))
                 if val_acc is not None:
                     print ('val_accuracy: ' + str(val_acc))
-                """
+                
 
 
             if i % 1 == 0:
@@ -163,7 +169,7 @@ class Neural_Network():
                 cost_list.append(cost)
 
             if i % 10 == 0:
-                print ('Epoch: ' + str(i) + '-' + 'cost ' + str(cost))
+                print ('Epoch: ' + str(i) + '-' + ' cost ' + str(cost))
                 print ('train_accuracy: ' + str(train_acc))
                 if val_acc is not None:
                     print ('val_accuracy: ' + str(val_acc))
@@ -232,6 +238,9 @@ class Neural_Network():
         elif activation == "leaky_relu":
             Z, linear_cache = self.linear_forward(A_prev, W, b)
             A, activation_cache = leaky_relu(Z)
+
+        else:
+            print ('no activation function')
 
         assert (A.shape == (W.shape[0], A_prev.shape[1]))
         cache = (linear_cache, activation_cache)
@@ -323,6 +332,8 @@ class Neural_Network():
         elif activation == "tanh":
             dZ = tanh_backward(dA, activation_cache)
             dA_prev, dW, db = self.linear_backward(dZ, linear_cache)    
+        else:
+            print ('no activation function')
 
         return dA_prev, dW, db
 
