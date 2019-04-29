@@ -239,6 +239,9 @@ class Neural_Network():
             Z, linear_cache = self.linear_forward(A_prev, W, b)
             A, activation_cache = leaky_relu(Z)
 
+        else:
+            print ('no activation function')
+
         assert (A.shape == (W.shape[0], A_prev.shape[1]))
         cache = (linear_cache, activation_cache)
 
@@ -329,6 +332,8 @@ class Neural_Network():
         elif activation == "tanh":
             dZ = tanh_backward(dA, activation_cache)
             dA_prev, dW, db = self.linear_backward(dZ, linear_cache)    
+        else:
+            print ('no activation function')
 
         return dA_prev, dW, db
 
