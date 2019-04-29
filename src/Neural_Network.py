@@ -265,11 +265,12 @@ class Neural_Network():
     def linear_activation_backward(self, dA, cache, activation):
 
         linear_cache, activation_cache = cache
+        """
         if activation == "softmax":
             dZ = softmax_backward(dA, activation_cache)
             dA_prev, dW, db = self.linear_backward(dZ, linear_cache)
-
-        elif activation == "relu":
+        """
+        if activation == "relu":
             dZ = relu_backward(dA, activation_cache)
             dA_prev, dW, db = self.linear_backward(dZ, linear_cache)
 
