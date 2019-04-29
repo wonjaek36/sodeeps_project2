@@ -7,7 +7,7 @@
 		"features": 784,
 		"labels": 	10,
 		"hidden_layers": [15],
-		"activation_functions": ["sigmoid"]
+		"activation_functions": []
 	},
 	"TRAIN": {
 		"epoch": 500,
