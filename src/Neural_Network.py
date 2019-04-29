@@ -90,6 +90,7 @@ class Neural_Network():
         train_acc_list = []
         val_acc_list = []
         cost_list = []
+        val_cost_list = []
 
         numTrain = int(self.trainX.shape[1]*train_data_ratio)
         numVal = int(self.trainX.shape[1] - numTrain)
@@ -123,10 +124,11 @@ class Neural_Network():
                 grads = self.backward_propagation(SAL, batch_Y, caches, l2, lambd)
                 self.update_parameters(self.parameters, grads, learning_rate, optimizer)
                 
-                train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
+                train_acc, val_acc, val_cost = self.estimate(AL, batch_Y, val_X, val_Y, l2, lambd)
                 train_acc_list.append(train_acc)
                 val_acc_list.append(val_acc)
                 cost_list.append(cost)
+                val_cost_list.append(val_cost)
                 print ('train_accuracy: ' + str(train_acc))
                 if val_acc is not None:
                     print ('val_accuracy: ' + str(val_acc))
@@ -146,10 +148,11 @@ class Neural_Network():
 
                 grads = self.backward_propagation(SAL, batch_Y, caches, l2, lambd)
                 self.update_parameters(self.parameters, grads, learning_rate, optimizer)
-                train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
+                train_acc, val_acc, val_cost = self.estimate(AL, batch_Y, val_X, val_Y, l2, lambd)
                 train_acc_list.append(train_acc)
                 val_acc_list.append(val_acc)
                 cost_list.append(cost)
+                val_cost_list.append(val_cost)
                 print ('train_accuracy: ' + str(train_acc))
                 if val_acc is not None:
                     print ('val_accuracy: ' + str(val_acc))
@@ -163,16 +166,19 @@ class Neural_Network():
                 print (batch_Y[:, 0])
                 """
                 # print (self.parameters["W2"])
-                train_acc, val_acc, cost = self.estimate_total(trainX, trainY, val_X, val_Y, l2, lambd)
-                train_acc_list.append(train_acc)
-                val_acc_list.append(val_acc)
-                cost_list.append(cost)
+                # train_acc, val_acc, cost = self.estimate_total(trainX, trainY, val_X, val_Y, l2, lambd)
+                # train_acc_list.append(train_acc)
+                # val_acc_list.append(val_acc)
+                # cost_list.append(cost)
 
             if i % 10 == 0:
+                pass
+                """
                 print ('Epoch: ' + str(i) + '-' + ' cost ' + str(cost))
                 print ('train_accuracy: ' + str(train_acc))
                 if val_acc is not None:
                     print ('val_accuracy: ' + str(val_acc))
+                """
 
 
 
@@ -186,7 +192,7 @@ class Neural_Network():
             # print (W1.shape)
             # print (W1[0].shape)
 
-        return train_acc_list, val_acc_list, cost_list
+        return train_acc_list, val_acc_list, cost_list, val_cost_list
 
 
     def forward_propagation(self, batch_X):
@@ -405,7 +411,7 @@ class Neural_Network():
 
         return train_accuracy, val_accuracy, cost
 
-    def estimate(self, AL, Y, val, val_Y):
+    def estimate(self, AL, Y, val, val_Y, l2, lambd):
 
         numData = Y.shape[1]
         prediction = np.argmax(AL, axis=0)
@@ -418,14 +424,14 @@ class Neural_Network():
         if val is not None and val_Y is not None:
             val_AL, _ = self.forward_propagation(val)
             # cost = self.compute_cost(val_AL, val_Y, 'cross_entropy')
-
+            val_cost = self.compute_cost(val_AL, val_Y, 'cross_entropy', l2, lambd)
             val_pred = np.argmax(val_AL, axis=0)
             val_sol = np.argmax(val_Y, axis=0)
 
             val_right = np.sum(val_pred == val_sol)
             val_accuracy = val_right / val_Y.shape[1]
 
-        return train_accuracy, val_accuracy
+        return train_accuracy, val_accuracy, val_cost
 
 
 
@@ -441,7 +447,7 @@ if __name__ == '__main__':
         nn.read_mnist()
 
         nn.build_model()
-        train_acc_list, val_acc_list, cost_list = nn.train_model()
+        train_acc_list, val_acc_list, cost_list, val_cost_list = nn.train_model()
 
         f = open('result.txt', 'w')
         f.write(str(train_acc_list))
@@ -449,5 +455,7 @@ if __name__ == '__main__':
         f.write(str(val_acc_list))
         f.write('\n')
         f.write(str(cost_list))
+        f.write('\n')
+        f.write(str(val_cost_list))
         # lr.prediction()
 
