@@ -4,3 +4,6 @@ venv
 
 # MNIST data file
 resources
+
+__pycache__
+*.pyc

@@ -87,6 +87,9 @@ class Neural_Network():
         optimizer = config['TRAIN']['optimizer']
         l2 = config['TRAIN']['L2']
         lambd = config['TRAIN']['lambd']
+        train_acc_list = []
+        val_acc_list = []
+        cost_list = []
 
         numTrain = int(self.trainX.shape[1]*train_data_ratio)
         numVal = int(self.trainX.shape[1] - numTrain)
@@ -155,6 +158,11 @@ class Neural_Network():
                 """
                 # print (self.parameters["W2"])
                 train_acc, val_acc, cost = self.estimate_total(trainX, trainY, val_X, val_Y, l2, lambd)
+                train_acc_list.append(train_acc)
+                val_acc_list.append(val_acc)
+                cost_list.append(cost)
+
+            if i % 10 == 0:
                 print ('Epoch: ' + str(i) + '-' + 'cost ' + str(cost))
                 print ('train_accuracy: ' + str(train_acc))
                 if val_acc is not None:
@@ -171,6 +179,8 @@ class Neural_Network():
             # W1 = self.parameters["W1"]
             # print (W1.shape)
             # print (W1[0].shape)
+
+        return train_acc_list, val_acc_list, cost_list
 
 
     def forward_propagation(self, batch_X):
@@ -404,7 +414,6 @@ class Neural_Network():
             val_right = np.sum(val_pred == val_sol)
             val_accuracy = val_right / val_Y.shape[1]
 
-
         return train_accuracy, val_accuracy
 
 
@@ -421,6 +430,13 @@ if __name__ == '__main__':
         nn.read_mnist()
 
         nn.build_model()
-        nn.train_model()
+        train_acc_list, val_acc_list, cost_list = nn.train_model()
+
+        f = open('result.txt', 'w')
+        f.write(str(train_acc_list))
+        f.write('\n')
+        f.write(str(val_acc_list))
+        f.write('\n')
+        f.write(str(cost_list))
         # lr.prediction()
 
