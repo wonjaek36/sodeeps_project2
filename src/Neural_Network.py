@@ -139,9 +139,12 @@ class Neural_Network():
 
 
             if i % 1 == 0:
+                """
                 print (AL[:, 0])
                 print (SAL[:, 0])
                 print (batch_Y[:, 0])
+                """
+                print (self.parameters["W2"])
                 train_acc, val_acc, cost = self.estimate_total(trainX, trainY, val_X, val_Y)
                 print ('Epoch: ' + str(i) + '-' + 'cost ' + str(cost))
                 print ('train_accuracy: ' + str(train_acc))

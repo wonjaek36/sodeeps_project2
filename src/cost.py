@@ -3,12 +3,8 @@ import numpy as np
 # For softmax
 def cross_entropy(AL, Y):
 
-    print ('cost')
-    print (AL[0:10])
     m = np.log(AL)
     m = np.nan_to_num(m)
-    print (Y[0:10])
-    print ('cost--')
     # print (m)
     #print (m.shape)
     cross_entropy = -np.sum(m*Y, axis=0)
