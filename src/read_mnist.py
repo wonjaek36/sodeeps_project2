@@ -58,6 +58,8 @@ class DataContainer():
         trainX = np.swapaxes(trainX, 0, 1)
         trainY = np.swapaxes(trainY, 0, 1)
 
+        # Normalize data
+        # trainX = trainX / 255.0
         # print (trainY.shape)
         return trainX, trainY
         

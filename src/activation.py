@@ -7,7 +7,7 @@ def softmax(Z):
 	A = np.exp(z) / np.sum(np.exp(z), axis=0, keepdims=True, dtype=np.float64)[: np.newaxis]
 
 	assert(A.shape == Z.shape)
-	return A, cache
+	return A
 
 
 def sigmoid(Z):
@@ -89,6 +89,7 @@ def leaky_relu(Z):
 	return A, cache
 
 
+"""
 def softmax_backward(dA, cache):
 	Z = cache
 	z = Z-np.max(Z, axis=0)
@@ -98,6 +99,7 @@ def softmax_backward(dA, cache):
 	assert (dZ.shape == Z.shape)
 
 	return dZ
+"""
 	
 
 def sigmoid_backward(dA, cache):
