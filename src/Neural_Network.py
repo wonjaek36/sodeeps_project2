@@ -14,7 +14,7 @@ from optimizer import initialize_velocity, update_parameters_with_momentum, \
     initialize_parameter, update_parameters
 
     
-from cost import cross_entropy
+from cost import cross_entropy, compute_cost, compute_cost_with_regularization
 
 class Neural_Network():
 
@@ -85,6 +85,8 @@ class Neural_Network():
         validation_data_ratio = config['TRAIN']['validation_data_ratio']
         learning_rate = config['TRAIN']['learning_rate']
         optimizer = config['TRAIN']['optimizer']
+        l2 = config['TRAIN']['L2']
+        lambd = config['TRAIN']['lambd']
 
         numTrain = int(self.trainX.shape[1]*train_data_ratio)
         numVal = int(self.trainX.shape[1] - numTrain)
@@ -95,6 +97,13 @@ class Neural_Network():
         val_Y = self.trainY[:, numTrain: ]
 
         numBatch = numTrain // batch_size
+
+        print ("Number of Training Data: " + str(trainX.shape[1]))
+        print ("Number of Validation Data: " + str(val_X.shape[1]))
+        if l2 == "true":
+            l2 = True
+        else:
+            l2 = False
 
         for i in range(epoch):
             for j in range(numBatch):
@@ -108,7 +117,7 @@ class Neural_Network():
                 # cost = self.compute_cost(AL, batch_Y, 'cross_entropy')
                 # print ('Epoch ' + str(i) + ' - ' + 'cost ' + str(cost))
 
-                grads = self.backward_propagation(SAL, batch_Y, caches)
+                grads = self.backward_propagation(SAL, batch_Y, caches, l2, lambd)
                 self.update_parameters(self.parameters, grads, learning_rate, optimizer)
                 """
                 train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
@@ -129,7 +138,7 @@ class Neural_Network():
                 # cost = self.compute_cost(AL, batch_Y, 'cross_entropy')
                 # print ('Epoch ' + str(i) + ' - ' + 'cost ' + str(cost))
 
-                grads = self.backward_propagation(SAL, batch_Y, caches)
+                grads = self.backward_propagation(SAL, batch_Y, caches, l2, lambd)
                 self.update_parameters(self.parameters, grads, learning_rate, optimizer)
                 """train_acc, val_acc = self.estimate(AL, batch_Y, val_X, val_Y)
                 print ('train_accuracy: ' + str(train_acc))
@@ -145,7 +154,7 @@ class Neural_Network():
                 print (batch_Y[:, 0])
                 """
                 # print (self.parameters["W2"])
-                train_acc, val_acc, cost = self.estimate_total(trainX, trainY, val_X, val_Y)
+                train_acc, val_acc, cost = self.estimate_total(trainX, trainY, val_X, val_Y, l2, lambd)
                 print ('Epoch: ' + str(i) + '-' + 'cost ' + str(cost))
                 print ('train_accuracy: ' + str(train_acc))
                 if val_acc is not None:
@@ -220,13 +229,16 @@ class Neural_Network():
         return A, cache
 
 
-    def compute_cost(self, AL, Y, func):
+    def compute_cost(self, AL, Y, func, l2, lambd):
         if func == 'cross_entropy':
-            return cross_entropy(AL, Y)
+            if l2 == True:
+                return compute_cost_with_regularization(AL, Y, self.parameters, lambd)
+            else:
+                return compute_cost(AL, Y)
         else:
             pass
 
-    def backward_propagation(self, SAL, Y, caches):
+    def backward_propagation(self, SAL, Y, caches, l2, lambd):
         
         grads = {}
         L = len(caches)
@@ -237,16 +249,29 @@ class Neural_Network():
         dAL = SAL - Y # Softmax with loss
 
         cache = caches[-1]
+        linear_cache, _ = cache
         grads["dA"+str(L-1)], grads["dW"+str(L)], grads["db"+str(L)] = self.linear_activation_backward(dAL, cache, self.activation[-1])
+        if l2 == True:
+            _, W, _ = linear_cache
+            grads["dW"+str(L)] = grads["dW"+str(L)] + lambd / m * W
 
         for l in reversed(range(L-1)):
             cache = caches[l]
+            linear_cache, _ = cache
+            _, W, _ = linear_cache
+
             dA_prev, dW, db = self.linear_activation_backward(grads["dA"+str(l+1)], cache, self.activation[l])
             grads["dA" + str(l)] = dA_prev
             grads["dW" + str(l+1)] = dW
+            if l2 == True:
+                grads["dW" + str(l+1)] = grads["dW" + str(l+1)] + lambd / m * W
+
             grads["db" + str(l+1)] = db
 
         return grads
+
+
+
 
 
     def linear_backward(self, dZ, cache):
@@ -333,13 +358,13 @@ class Neural_Network():
         pass
 
 
-    def estimate_total(self, trainX, trainY, val_X, val_Y):
+    def estimate_total(self, trainX, trainY, val_X, val_Y, l2, lambd):
         numData = trainY.shape[1]
         AL, _ = self.forward_propagation(trainX)
         # For softmax
         SAL = softmax(AL)
 
-        cost = self.compute_cost(SAL, trainY, 'cross_entropy')
+        cost = self.compute_cost(SAL, trainY, 'cross_entropy', l2, lambd)
         prediction = np.argmax(SAL, axis=0)
         solution = np.argmax(trainY, axis=0)
 
@@ -391,7 +416,7 @@ if __name__ == '__main__':
         config = json.load(f)
 
     if config is not None:
-        random.seed(1)
+        np.random.seed(2)
         nn = Neural_Network(config)
         nn.read_mnist()
 

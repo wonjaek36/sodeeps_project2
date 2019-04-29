@@ -3,7 +3,7 @@ from cost import cross_entropy
 
 def softmax(Z):
 	cache = Z
-	z = Z-np.max(Z, axis=0)
+	z = Z-np.max(Z, axis=0, keepdims=True)
 	A = np.exp(z) / np.sum(np.exp(z), axis=0, keepdims=True, dtype=np.float64)[: np.newaxis]
 
 	assert(A.shape == Z.shape)

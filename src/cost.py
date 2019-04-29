@@ -7,13 +7,28 @@ def cross_entropy(AL, Y):
     m = np.nan_to_num(m)
     # print (m)
     #print (m.shape)
-    cross_entropy = -np.sum(m*Y, axis=0)
-    cost = np.mean(cross_entropy)
-    #cost = np.squeeze(cost)
+    cross_entropy = -np.sum(m*Y, axis=0, keepdims=True)
+    
+    return cross_entropy
 
+def compute_cost(AL, Y):
+    cet = cross_entropy(AL, Y)
+    cost = np.mean(cet)
     assert(cost.shape) == ()
 
     return cost
+
+def compute_cost_with_regularization(AL, Y, parameters, lambd):
+    m = Y.shape[1]
+    L = len(parameters) // 2 # number of parameters
+    squared_weight_sum = 0
+    for l in range(L):
+        W = parameters["W" + str(l+1)]
+        squared_weight_sum += np.sum(W**2)
+
+    L2_regularization_cost = (squared_weight_sum * lambd) / (2 * m)
+    return compute_cost(AL, Y) + L2_regularization_cost
+
 
 """
 if __name__ == "__main__":
