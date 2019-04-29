@@ -354,8 +354,8 @@ class Neural_Network():
             self.parameters, self.v = update_parameters_with_momentum(parameters, grads, self.v, learning_rate,  beta1)
         elif optimizer == "rmsprops":
             beta2 = config['TRAIN']['beta2']
-            epsillon = config['TRAIN']['epsillon']
-            self.parameters, self.v = update_parameters_with_RMSprops(parameters, grads, self.v, learning_rate, beta2, epsillon)
+            epsillon = 1e-8#config['TRAIN']['epsillon']
+            self.parameters, self.v = update_parameters_with_RMSprops(parameters, grads, self.s, learning_rate, beta2, epsillon)
         elif optimizer == "adam":
             beta1 = config['TRAIN']['beta1']
             beta2 = config['TRAIN']['beta2']

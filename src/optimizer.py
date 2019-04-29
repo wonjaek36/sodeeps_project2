@@ -41,7 +41,7 @@ def initialize_RMSprops(parameters):
     return s
 
 
-def update_parameters_with_RMSprops(parameters, grads, v, learning_rate, beta2, epsillon):
+def update_parameters_with_RMSprops(parameters, grads, s, learning_rate, beta2, epsillon):
 
     L = len(parameters) // 2
 
@@ -55,7 +55,7 @@ def update_parameters_with_RMSprops(parameters, grads, v, learning_rate, beta2, 
         parameters["W" + str(l+1)] = parameters["W" + str(l+1)] - learning_rate * grads["dW"+str(l+1)] / (np.sqrt(s["dW"+str(l+1)]) + epsillon)
         parameters["b" + str(l+1)] = parameters["b" + str(l+1)] - learning_rate * grads["db"+str(l+1)] / (np.sqrt(s["db"+str(l+1)]) + epsillon)
 
-    return parameters, v
+    return parameters, s
 
 
 def initialize_adam(parameters):

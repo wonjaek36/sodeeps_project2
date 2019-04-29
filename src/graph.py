@@ -1,10 +1,9 @@
 import matplotlib.pyplot as pyplot
 import numpy as np
 
-f = open('B_3.txt', 'r')
+f = open('E_3.txt', 'r')
 train_acc = f.readline()
 train_acc = train_acc[1:-2]
-print (train_acc)
 train_acc = list(map(float, train_acc.split(',')))
 
 val_acc = f.readline()
@@ -16,9 +15,8 @@ cost = cost[1:-2]
 cost = list(map(float, cost.split(',')))
 
 val_cost = f.readline()
-val_cost = f.readline()
 val_cost = val_cost[1:-2]
-val_cost = list(map(float, cost.split(',')))
+val_cost = list(map(float, val_cost.split(',')))
 
 pyplot.plot(train_acc)
 pyplot.plot(val_acc)
