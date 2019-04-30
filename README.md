@@ -25,8 +25,8 @@ Especially, hyper-parameter in below is configurable in that file.
 * Mini-Batch size
 * Regularization
   * L2 Regularization
-  * L1 Regularization
-  * Drop-out
+  * L1 Regularization(Future work)
+  * Drop-out(Future work)
 * Optimizer
   * Gradient Descent
   * Momentum(beta)
